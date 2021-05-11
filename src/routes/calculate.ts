@@ -4,7 +4,7 @@ const router = express.Router();
 const { calculateShapePost, fetchAll } = require("./controller");
 
 /* GET users listing. */
-router.get("/calculate", function (
+router.get("/fetchRecords", function (
   req: Request,
   res: Response,
   next: NextFunction

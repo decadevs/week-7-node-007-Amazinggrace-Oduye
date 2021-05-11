@@ -26,9 +26,12 @@ async function calculateShapePost(req: Request, res: Response) {
   try {
     let shape = req.body.shape.toLowerCase();
     let dimension = req.body.dimension;
-      if (shape === "square") {
-        const side = dimension
-      if (!isNaN(side) ) {
+    let dimArrValues = Object.values(dimension);
+    if (shape === "square") {
+      const side = dimension;
+      if (typeof side !== "number" || side <1) {
+        return res.status(400).json("invalid type of dimension for square");
+      } else {
         let result: name = {
           id: lastId || 1,
           shape: req.body.shape,
@@ -38,58 +41,76 @@ async function calculateShapePost(req: Request, res: Response) {
         };
         database.push(result);
         writeFileToDatabase("dist/data/database.json", database);
-        res.status(200).json({ result });
-      } else {
-        res.status(400).json("invalid type of dimension for square");
+        return res.status(201).json({ result });
       }
-    } else if (shape === "rectangle" && Object.values(dimension).length === 2) {
-      if (Object.values(dimension).every((el) => typeof el === "number")) {
-          const { length, breath } = req.body.dimension;
-        let result: name = {
-          id: lastId || 1,
-          shape: req.body.shape,
-          createdAt: new Date(),
-          dimension: req.body.dimension,
-          area: +(length * breath).toFixed(2),
-        };
-        database.push(result);
-        writeFileToDatabase("dist/data/database.json", database);
-        res.status(200).json({ result });
+    } else if (shape === "rectangle") {
+      if (dimArrValues.length !== 2) {
+        return res.status(400).json("invalid dimension for rectangle");
       } else {
-        res.status(400).json("invalid dimension for rectangle");
+        if (
+          dimArrValues.every((el) => typeof el === "number") &&
+          dimArrValues.length === 2
+        ) {
+          const { a, b } = dimension;
+          let area = a * b
+          if (area < 1) {
+            return res.status(400).json("dimension can not form triangle")
+          }
+          let result: name = {
+            id: lastId || 1,
+            shape: req.body.shape,
+            createdAt: new Date(),
+            dimension: req.body.dimension,
+            area: +area.toFixed(2),
+          };
+          database.push(result);
+          writeFileToDatabase("dist/data/database.json", database);
+          return res.status(201).json({ result });
+        } else {
+          return res.status(400).json("invalid dimension for rectangle");
+        }
       }
-    } else if (shape === "triangle" && Object.values(dimension).length === 3) {
-      if (Object.values(dimension).every((el) => typeof el === "number")) {
-          const { length_a, length_b, length_c } = req.body.dimension;
-        let s = (length_a + length_b + length_c) / 2;
-        let area =
-          Math.sqrt(s) * (s - length_a) * (s - length_b) * (s - length_c);
-        let result: name = {
-          id: lastId || 1,
-          shape: req.body.shape,
-          createdAt: new Date(),
-          dimension: req.body.dimension,
-          area: +area.toFixed(2),
-        };
-        database.push(result);
-        writeFileToDatabase("dist/data/database.json", database);
-        res.status(200).json({ result });
+    } else if (shape === "triangle") {
+      if (dimArrValues.length !== 3) {
+        return res.status(400).json("invalid dimension for triangle");
       } else {
-        res.status(400).json("invalid dimension for triangle");
+        if (
+          dimArrValues.every((el) => typeof el === "number") &&
+          dimArrValues.length === 3
+        ) {
+          const { a, b, c } = req.body.dimension;
+          let s = (a + b + c) / 2;
+          let area = Math.sqrt(s) * (s - a) * (s - b) * (s - c);
+          if (area < 1) {
+            return res.status(400).json("Dimension can not form triangle")
+          }
+          let result: name = {
+            id: lastId || 1,
+            shape: req.body.shape,
+            createdAt: new Date(),
+            dimension: req.body.dimension,
+            area: +area.toFixed(2),
+          };
+          database.push(result);
+          writeFileToDatabase("dist/data/database.json", database);
+          res.status(201).json({ result });
+        } else {
+          return res.status(400).json("invalid dimension for triangle");
+        }
       }
     } else if (shape === "circle") {
-        const radius  = req.body.dimension;
-      if (!isNaN(radius)) {
+      const radius = req.body.dimension;
+      if (typeof radius === "number" && radius > 0) {
         let result: name = {
           id: lastId || 1,
           shape: req.body.shape,
           createdAt: new Date(),
           dimension: req.body.dimension,
-          area: +(Math.PI * radius** 2).toFixed(2),
+          area: +(Math.PI * radius ** 2).toFixed(2),
         };
         database.push(result);
         writeFileToDatabase("dist/data/database.json", database);
-        res.status(200).json({ result });
+        return res.status(201).json({ result });
       } else {
         res.status(400).json("invalid type of dimension for circle");
       }

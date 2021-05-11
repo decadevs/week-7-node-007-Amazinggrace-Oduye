@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const { calculateShapePost, fetchAll } = require("./controller");
 /* GET users listing. */
-router.get("/calculate", function (req, res, next) {
+router.get("/fetchRecords", function (req, res, next) {
     fetchAll(req, res);
 });
 router.post("/calculate", (req, res, next) => {
